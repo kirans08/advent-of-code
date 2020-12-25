@@ -1,3 +1,5 @@
-# Competitive Programming Solutions
+# Advent of Code
 
-Collection of solutions for online competitive programming contests and practice questions.
+Collection of solutions for Advent of Code
+
+https://adventofcode.com/
