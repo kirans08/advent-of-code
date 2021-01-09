@@ -35,6 +35,8 @@ class Robot {
             (opcode.mode2 == 2) && (arg2+=this.relativeBase);
             (opcode.mode3 == 2) && (arg3+=this.relativeBase);
 
+            let address1 = arg1;
+
             (opcode.mode1 != 1) && (arg1 = program[arg1] || 0);
             (opcode.mode2 != 1) && (arg2 = program[arg2] || 0);
 
@@ -50,13 +52,12 @@ class Robot {
                     break;
 
                 case 3:
-                    program[program[this.pointer] + this.relativeBase] = ship.getColor(this.x, this.y);
+                    program[address1] = ship.getColor(this.x, this.y);
                     this.pointer++;
                     break;
 
                 case 4:
                     this.pointer++;
-                    // console.log(arg1);
 
                     this.isModePaint  && ship.setColor(this.x, this.y, arg1);
                     !this.isModePaint && this._move(arg1);

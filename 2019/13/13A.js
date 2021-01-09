@@ -29,6 +29,8 @@ class Computer {
             (opcode.mode2 == 2) && (arg2+=this.relativeBase);
             (opcode.mode3 == 2) && (arg3+=this.relativeBase);
 
+            let address1 = arg1;
+
             (opcode.mode1 != 1) && (arg1 = program[arg1] || 0);
             (opcode.mode2 != 1) && (arg2 = program[arg2] || 0);
 
@@ -44,7 +46,7 @@ class Computer {
                     break;
 
                 case 3:
-                    program[program[this.pointer] + this.relativeBase] = mode;
+                    program[address1] = 1;
                     this.pointer++;
                     break;
 

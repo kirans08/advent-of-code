@@ -4,34 +4,22 @@ var input = fs.readFileSync('input', 'utf8');
 
 class Adapter {
 
-    constructor(phase, program) {
+    constructor(program, phase) {
 
-        this.phase = phase;
         this.program = [...program];
-        this.output = 0;
+        this.inputs  = [phase];
         this.pointer = 0;
-        this.complete = false;
-        this.started = false;
+        this.isComplete = false;
 
     }
 
-    run(input) {
+    run() {
 
-
-        if (this.complete) {
+        if (this.isComplete) {
             return;
         }
 
-        let inputs = [];
-        let inputPointer = 0;
         let program = this.program;
-
-        if (!this.started) {
-            inputs.push(this.phase);
-        }
-
-        this.started = true;
-        inputs.push(input);
 
         while (this.pointer < program.length) {
 
@@ -40,6 +28,7 @@ class Adapter {
             let arg1 = program[this.pointer];
             let arg2 = program[this.pointer+1];
             let arg3 = program[this.pointer+2];
+            let address1 = arg1;
             (opcode.mode1 == 0) && (arg1 = program[arg1]);
             (opcode.mode2 == 0) && (arg2 = program[arg2]);
 
@@ -55,7 +44,7 @@ class Adapter {
                     break;
 
                 case 3:
-                    program[program[this.pointer]] = inputs[inputPointer++];
+                    program[address1] = this.inputs.shift();
                     this.pointer++;
                     break;
 
@@ -85,7 +74,7 @@ class Adapter {
                     break
 
                 case 99:
-                    this.complete = true;
+                    this.isComplete = true;
                     return;
 
             }
@@ -106,6 +95,13 @@ class Adapter {
 
     }
 
+    addInput(...input) {
+
+        this.inputs = this.inputs.concat(input);
+
+    }
+
+
 }
 
 const runAdapaterCombo = (program, combo) => {
@@ -113,7 +109,7 @@ const runAdapaterCombo = (program, combo) => {
     let adapters = [];
 
     combo.forEach(phase => {
-        adapters.push(new Adapter(phase, program))
+        adapters.push(new Adapter(program, phase))
     });
 
     let adapterId = 0;
@@ -123,10 +119,11 @@ const runAdapaterCombo = (program, combo) => {
 
         let adapter = adapters[adapterId];
 
-        adapter.run(prevOutput);
+        adapter.addInput(prevOutput);
+        adapter.run();
         prevOutput = adapter.output;
 
-        if (adapter.complete && adapterId == 4) {
+        if (adapter.isComplete && adapterId == 4) {
             return adapter.output;
         }
 
