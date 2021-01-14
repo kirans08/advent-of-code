@@ -1,7 +1,7 @@
 const fs = require('fs');
 const input = fs.readFileSync('input', 'utf8');
 
-const cords = [];
+const coords = [];
 
 input.split('\n')
 .map(row => row.split(''))
@@ -13,7 +13,7 @@ input.split('\n')
             return;
         }
 
-        cords.push([c,r]);
+        coords.push([c,r]);
 
     })
 
@@ -21,26 +21,26 @@ input.split('\n')
 
 let baseX, baseY, maxCount = 0;
 
-cords.forEach(baseCord => {
+coords.forEach(baseCoord => {
 
-    let angles = cords
-    .filter(cord => cord[0] != baseCord[0] || cord[1] != baseCord[1])
-    .map(cord => Math.atan2(cord[1] - baseCord[1], cord[0] - baseCord[0]));
+    let angles = coords
+    .filter(coord => coord[0] != baseCoord[0] || coord[1] != baseCoord[1])
+    .map(coord => Math.atan2(coord[1] - baseCoord[1], coord[0] - baseCoord[0]));
     
     let tempCount = new Set(angles).size;
 
     if (tempCount > maxCount) {
         maxCount = tempCount;
-        baseX = baseCord[0];
-        baseY = baseCord[1];
+        baseX = baseCoord[0];
+        baseY = baseCoord[1];
     }
 });
 
-let astroidMap = cords.filter(cord => cord[0] != baseX || cord[1] != baseY)
-.map(cord => {
+let astroidMap = coords.filter(coord => coord[0] != baseX || coord[1] != baseY)
+.map(coord => {
 
-    let xdiff = cord[0] - baseX;
-    let ydiff = cord[1] - baseY;
+    let xdiff = coord[0] - baseX;
+    let ydiff = coord[1] - baseY;
     let angle = Math.atan2(xdiff, ydiff) - 90;
 
     if (angle < 0) {
@@ -52,8 +52,8 @@ let astroidMap = cords.filter(cord => cord[0] != baseX || cord[1] != baseY)
     let dist = Math.sqrt(xdiff*xdiff + ydiff*ydiff);
 
     return {
-        x: cord[0],
-        y: cord[1],
+        x: coord[0],
+        y: coord[1],
         angle: angle,
         dist: dist
     }

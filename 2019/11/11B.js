@@ -152,16 +152,16 @@ class Ship {
 
     print() {
 
-        const cords = Object.keys(this.hull)
+        const coords = Object.keys(this.hull)
         .map(key => key.split('.'));
 
-        const xCords = cords.map(cord => cord[0]);
-        const yCords = cords.map(cord => cord[1]);
+        const xCoords = coords.map(coord => coord[0]);
+        const yCoords = coords.map(coord => coord[1]);
 
-        const minX = Math.min(...xCords);
-        const maxX = Math.max(...xCords);
-        const minY = Math.min(...yCords);
-        const maxY = Math.max(...yCords);
+        const minX = Math.min(...xCoords);
+        const maxX = Math.max(...xCoords);
+        const minY = Math.min(...yCoords);
+        const maxY = Math.max(...yCoords);
 
         for (let i = maxY; i >= minY; i--) {
 
