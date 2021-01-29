@@ -9,6 +9,9 @@
  *
  * Version 3 - Day 05 - Part 2
  *  - Support for Jump if true, Jump if false, Less than, equals
+ *
+ * Version 4 - Day 09 - Part 1,2
+ *  - Support for Relative Base
  */
 
 class IntcodeComputer {
@@ -66,6 +69,7 @@ class IntcodeComputer {
 
         let program = [...this.program];
         let pointer = 0;
+        let relativeBase = 0;
 
         while (pointer < program.length) {
 
@@ -74,10 +78,15 @@ class IntcodeComputer {
             let arg1 = program[pointer];
             let arg2 = program[pointer+1];
             let arg3 = program[pointer+2];
+
+            (opcode.mode1 == 2) && (arg1+=relativeBase);
+            (opcode.mode2 == 2) && (arg2+=relativeBase);
+            (opcode.mode3 == 2) && (arg3+=relativeBase);
+
             let address1 = arg1;
 
-            (opcode.mode1 == 0) && (arg1 = program[arg1]);
-            (opcode.mode2 == 0) && (arg2 = program[arg2]);
+            (opcode.mode1 != 1) && (arg1 = program[arg1] || 0);
+            (opcode.mode2 != 1) && (arg2 = program[arg2] || 0);
 
             switch(opcode.code) {
 
@@ -120,6 +129,11 @@ class IntcodeComputer {
                     pointer+=3;
                     break;
 
+                case 9:
+                    relativeBase+=arg1;
+                    pointer++;
+                    break;
+
                 case 99:
                     return false;
                     break;
@@ -140,6 +154,7 @@ class IntcodeComputer {
             code: opcode % 100,
             mode1: parts[2] || 0,
             mode2: parts[3] || 0,
+            mode3: parts[4] || 0,
         };
 
     }

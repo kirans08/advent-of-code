@@ -96,6 +96,7 @@ class IntcodeComputer {
                     break;
 
                 case 4:
+                    pointer++;
                     yield arg1;
                     break;
 
