@@ -38,7 +38,11 @@ class IntcodeComputer {
 
     }
 
-    input(val) {
+    input(val, clearPastInputs = false) {
+
+        if (clearPastInputs === true) {
+            this.inputList = [];
+        }
 
         this.inputList = this.inputList.concat(Array.isArray(val) ? val : [val]);
 
