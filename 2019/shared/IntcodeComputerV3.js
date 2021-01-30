@@ -1,14 +1,15 @@
 
 /**
- * Version 1 - Day 02 - Part 1,2
+ * Version 1 - Day 02
  *  - Support for Addition and Multiplication
  *
- * Version 2 - Day 05 - Part 1
+ * Version 2 - Day 05
  *  - Support for Input and Output
  *  - Support for Parameter modes
- *
- * Version 3 - Day 05 - Part 2
  *  - Support for Jump if true, Jump if false, Less than, equals
+ *
+ * Version 3 - Final - Day 09
+ *  - Support for Relative Base
  */
 
 class IntcodeComputer {
@@ -33,6 +34,7 @@ class IntcodeComputer {
         this.program = [...program];
         this.inputList = input;
         this.instance = this._execute();
+        this.done = false;
 
     }
 
@@ -50,13 +52,22 @@ class IntcodeComputer {
 
     }
 
+    halted() {
+
+        return this.done;
+
+    }
+
     finalOutput() {
 
-        let temp, result;
+        let result, temp;
 
-        while ((temp = this.output()) !== false) {
+        do {
+
             result = temp;
-        }
+            temp = this.output();
+
+        } while(!this.halted());
 
         return result;
 
@@ -66,6 +77,7 @@ class IntcodeComputer {
 
         let program = [...this.program];
         let pointer = 0;
+        let relativeBase = 0;
 
         while (pointer < program.length) {
 
@@ -74,10 +86,15 @@ class IntcodeComputer {
             let arg1 = program[pointer];
             let arg2 = program[pointer+1];
             let arg3 = program[pointer+2];
+
+            (opcode.mode1 == 2) && (arg1+=relativeBase);
+            (opcode.mode2 == 2) && (arg2+=relativeBase);
+            (opcode.mode3 == 2) && (arg3+=relativeBase);
+
             let address1 = arg1;
 
-            (opcode.mode1 == 0) && (arg1 = program[arg1]);
-            (opcode.mode2 == 0) && (arg2 = program[arg2]);
+            (opcode.mode1 != 1) && (arg1 = program[arg1] || 0);
+            (opcode.mode2 != 1) && (arg2 = program[arg2] || 0);
 
             switch(opcode.code) {
 
@@ -120,14 +137,20 @@ class IntcodeComputer {
                     pointer+=3;
                     break;
 
-                case 99:
-                    return false;
+                case 9:
+                    relativeBase+=arg1;
+                    pointer++;
                     break;
+
+                case 99:
+                    this.done = true;
+                    return false;
 
             }
 
         }
 
+        this.done = true;
         return false;
 
     }
@@ -140,6 +163,7 @@ class IntcodeComputer {
             code: opcode % 100,
             mode1: parts[2] || 0,
             mode2: parts[3] || 0,
+            mode3: parts[4] || 0,
         };
 
     }

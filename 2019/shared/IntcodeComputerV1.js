@@ -1,6 +1,6 @@
 
 /**
- * Version 1
+ * Version 1 - Day 02
  *  - Support for Addition and Multiplication
  */
 

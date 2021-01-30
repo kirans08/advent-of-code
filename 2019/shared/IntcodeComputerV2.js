@@ -1,13 +1,11 @@
 
 /**
- * Version 1 - Day 02 - Part 1,2
+ * Version 1 - Day 02
  *  - Support for Addition and Multiplication
  *
- * Version 2 - Day 05 - Part 1
+ * Version 2 - Day 05
  *  - Support for Input and Output
  *  - Support for Parameter modes
- *
- * Version 3 - Day 05 - Part 2
  *  - Support for Jump if true, Jump if false, Less than, equals
  */
 
@@ -33,6 +31,7 @@ class IntcodeComputer {
         this.program = [...program];
         this.inputList = input;
         this.instance = this._execute();
+        this.done = false;
 
     }
 
@@ -50,13 +49,22 @@ class IntcodeComputer {
 
     }
 
+    halted() {
+
+        return this.done;
+
+    }
+
     finalOutput() {
 
-        let temp, result;
+        let result, temp;
 
-        while ((temp = this.output()) !== false) {
+        do {
+
             result = temp;
-        }
+            temp = this.output();
+
+        } while(!this.halted());
 
         return result;
 
@@ -121,13 +129,14 @@ class IntcodeComputer {
                     break;
 
                 case 99:
+                    this.done = true;
                     return false;
-                    break;
 
             }
 
         }
 
+        this.done = true;
         return false;
 
     }

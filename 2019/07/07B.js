@@ -1,6 +1,6 @@
 const fs = require('fs');
 var input = fs.readFileSync('input', 'utf8');
-const IntcodeComputer = require('./IntcodeComputer');
+const IntcodeComputer = require('../shared/IntcodeComputerV2');
 
 const program = input.split(',').map(Number);
 
@@ -22,7 +22,7 @@ const runAdapaterCombo = (combo) => {
         .input(prevOutput)
         .output();
 
-        if (prevOutput === false) {
+        if (adapters[adapterId].halted()) {
             return result;
         }
 
