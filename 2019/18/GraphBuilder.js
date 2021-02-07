@@ -3,7 +3,7 @@ class GraphBuilder {
     constructor(grid) {
 
         this._gridBackup = grid;
-        this._loadGridFromBackup();
+        this._reloadGridFromBackup();
 
     }
 
@@ -16,9 +16,8 @@ class GraphBuilder {
 
             const [key, x, y] = node;
 
-            this._loadGridFromBackup();
-
-            graph[key] =this._findAdjacentNodes(x, y);
+            graph[key] = this._findAdjacentNodes(x, y);
+            this._reloadGridFromBackup();
 
         });
 
@@ -47,27 +46,6 @@ class GraphBuilder {
         return nodes;
 
     }
-
-    _getShortestPath(nodeList) {
-
-        const result = {};
-
-        nodeList.forEach(node => {
-
-            const [key, weight] = node;
-
-            if (result[key] && result[key] < weight) {
-                return;
-            }
-
-            result[key] = weight;
-
-        });
-
-        return result;
-
-    }
-
 
     _findAdjacentNodes(startX, startY) {
 
@@ -102,7 +80,8 @@ class GraphBuilder {
 
     }
 
-    _loadGridFromBackup() {
+
+    _reloadGridFromBackup() {
 
         this.grid = this._gridBackup.map(row => [...row]);
 
