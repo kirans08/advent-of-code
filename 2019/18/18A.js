@@ -3,32 +3,24 @@ let input = fs.readFileSync('input', 'utf8');
 
 const GraphBuilder = require('../shared/GraphBuilder');
 const SortedList = require('../shared/SortedList');
+const Helpers = require('./Helpers');
 
-const getCacheKey = (currentNode, collectedKeys) => {
-
-    return '' + currentNode + collectedKeys;
-
-}
-
-const isDoor = node => /^[A-Z]$/.test(node);
-
-const possibleKeys = (spTreeSet, currentNode, collectedKeys) => {
+const possibleKeys = (reachableKeySet, currentNode, collectedKeys) => {
 
     const result = [];
-    const spTree = spTreeSet[currentNode];
+    const reachableKeys = reachableKeySet[currentNode];
 
-    Object.keys(spTree)
-    .forEach(node => {
+    Object.keys(reachableKeys)
+    .forEach(key => {
 
-        if (node == currentNode || isDoor(node) || collectedKeys.has(node) || node == '@') {
+        if (collectedKeys.has(key)) {
             return;
         }
 
-        const {distance:distance, keys:requiredKeys} = spTree[node];
+        const {distance:distance, keys:requiredKeys} = reachableKeys[key];
 
-        if (!requiredKeys.find(key => !collectedKeys.has(key))) {
-
-            result.push([node, distance]);
+        if (!requiredKeys.find(requiredKey => !collectedKeys.has(requiredKey))) {
+            result.push([key, distance]);
         }
 
     })
@@ -38,9 +30,9 @@ const possibleKeys = (spTreeSet, currentNode, collectedKeys) => {
 }
 
 const shortestPathCache = new Map();
-const findMinDistance = (spTreeSet, currentNode, pendingKeyCount, collectedKeys = new SortedList()) => {
+const findMinDistance = (reachableKeySet, currentNode, pendingKeyCount, collectedKeys = new SortedList()) => {
 
-    const cacheKey = getCacheKey(currentNode, collectedKeys);
+    const cacheKey = '' + currentNode + collectedKeys;
     if (shortestPathCache.has(cacheKey)) {
 
         return shortestPathCache.get(cacheKey);
@@ -54,15 +46,13 @@ const findMinDistance = (spTreeSet, currentNode, pendingKeyCount, collectedKeys 
     let minDistance = Number.POSITIVE_INFINITY;
     pendingKeyCount--;
 
-    possibleKeys(spTreeSet, currentNode, collectedKeys)
+    possibleKeys(reachableKeySet, currentNode, collectedKeys)
     .forEach(node => {
         
         const [key, dist] = node;
 
         collectedKeys.add(key);
-
-        const totalDist = dist + findMinDistance(spTreeSet, key, pendingKeyCount, collectedKeys);
-
+        const totalDist = dist + findMinDistance(reachableKeySet, key, pendingKeyCount, collectedKeys);
         collectedKeys.delete(key);
 
         if (totalDist < minDistance) {
@@ -77,68 +67,6 @@ const findMinDistance = (spTreeSet, currentNode, pendingKeyCount, collectedKeys 
 
 }
 
-const findNextUnvisitedNode = (shortestPathTree, visitedVertexes) => {
-
-    let minDist = Number.POSITIVE_INFINITY;
-    let result;
-
-    Object.keys(shortestPathTree).forEach(node => {
-
-        if (!visitedVertexes.has(node) && shortestPathTree[node].distance < minDist) {
-            result = node;
-            minDist = shortestPathTree[node].distance;
-        }
-
-    })
-
-    return result;
-
-}
-
-const dijikstras = (graph, start) => {
-
-    const visitedVertexes = new Map();
-    const shortestPathTree = {};
-    let count = Object.keys(graph).length;
-
-    Object.keys(graph).forEach(node => {
-        shortestPathTree[node] = {
-            distance: Number.POSITIVE_INFINITY,
-            keys: []
-        };
-    });
-
-    shortestPathTree[start].distance = 0;
-
-    while(count-- > 0) {
-
-        const currentNode = findNextUnvisitedNode(shortestPathTree, visitedVertexes);
-        visitedVertexes.set(currentNode, true);
-
-        const adjacentNodes = graph[currentNode];
-        const baseDistance  = shortestPathTree[currentNode].distance;
-        const baseKeys = shortestPathTree[currentNode].keys;
-
-        Object.keys(adjacentNodes).forEach(node => {
-
-            const distance = adjacentNodes[node] + baseDistance;
-
-            if (distance < shortestPathTree[node].distance) {
-                shortestPathTree[node] = {
-                    distance: distance,
-                    keys: isDoor(currentNode) ? baseKeys.concat(currentNode.toLowerCase()) : baseKeys
-                }
-
-            }
-
-        })
-
-    };
-
-    return shortestPathTree;
-
-}
-
 const grid = input.split('\n')
 .map(row => row.split(''));
 
@@ -147,10 +75,8 @@ const keyCount = Object.keys(graph)
 .filter(node => /^[a-z]$/.test(node))
 .length;
 
-const spTreeSet = {};
+const reachableKeySet = {};
 Object.keys(graph)
-.forEach(key => spTreeSet[key] = dijikstras(graph, key));
+.forEach(key => reachableKeySet[key] = Helpers.getReachableKeys(graph, key, ['@']));
 
-
-console.log(findMinDistance(spTreeSet, '@', keyCount));
-
+console.log(findMinDistance(reachableKeySet, '@', keyCount));
