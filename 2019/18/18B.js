@@ -22,15 +22,7 @@ const getCacheKey = (currentNodes, collectedKeys) => {
 
 }
 
-const possibleKeyCache = new Map();
 const possibleKeys = (graph, currentNodes, collectedKeys = new Set()) => {
-
-    const cacheKey = getCacheKey(currentNodes, collectedKeys);
-    if (possibleKeyCache.has(cacheKey)) {
-
-        return possibleKeyCache.get(cacheKey);
-
-    }
 
     let pending = currentNodes.map((node, index) => [node, 0, index]);
     let visited = new Map();
@@ -65,9 +57,6 @@ const possibleKeys = (graph, currentNodes, collectedKeys = new Set()) => {
         })
 
     }
-
-
-    possibleKeyCache.set(cacheKey, result);
 
     return result;
 

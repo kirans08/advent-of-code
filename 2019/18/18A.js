@@ -11,15 +11,7 @@ const getCacheKey = (currentNode, collectedKeys) => {
 
 const isDoor = node => /^[A-Z]$/.test(node);
 
-const possibleKeyCache = new Map();
 const possibleKeys = (spTreeSet, currentNode, collectedKeys = new Set()) => {
-
-    const cacheKey = getCacheKey(currentNode, collectedKeys);
-    if (possibleKeyCache.has(cacheKey)) {
-
-        return possibleKeyCache.get(cacheKey);
-
-    }
 
     const result = [];
     const spTree = spTreeSet[currentNode];
@@ -38,9 +30,7 @@ const possibleKeys = (spTreeSet, currentNode, collectedKeys = new Set()) => {
             result.push([node, distance]);
         }
 
-    }) 
-
-    possibleKeyCache.set(cacheKey, result);
+    })
 
     return result;
 
