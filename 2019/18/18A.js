@@ -1,17 +1,18 @@
 const fs = require('fs');
 let input = fs.readFileSync('input', 'utf8');
 
-const GraphBuilder = require('./GraphBuilder');
+const GraphBuilder = require('../shared/GraphBuilder');
+const SortedList = require('../shared/SortedList');
 
 const getCacheKey = (currentNode, collectedKeys) => {
 
-    return currentNode + [...collectedKeys].sort().toString();
+    return '' + currentNode + collectedKeys;
 
 }
 
 const isDoor = node => /^[A-Z]$/.test(node);
 
-const possibleKeys = (spTreeSet, currentNode, collectedKeys = new Set()) => {
+const possibleKeys = (spTreeSet, currentNode, collectedKeys) => {
 
     const result = [];
     const spTree = spTreeSet[currentNode];
@@ -37,7 +38,7 @@ const possibleKeys = (spTreeSet, currentNode, collectedKeys = new Set()) => {
 }
 
 const shortestPathCache = new Map();
-const findMinDistance = (spTreeSet, currentNode, pendingKeyCount, collectedKeys = new Set()) => {
+const findMinDistance = (spTreeSet, currentNode, pendingKeyCount, collectedKeys = new SortedList()) => {
 
     const cacheKey = getCacheKey(currentNode, collectedKeys);
     if (shortestPathCache.has(cacheKey)) {
@@ -58,18 +59,15 @@ const findMinDistance = (spTreeSet, currentNode, pendingKeyCount, collectedKeys 
         
         const [key, dist] = node;
 
-        if (dist > minDistance) {
-            return true;
-        }
-
         collectedKeys.add(key);
+
         const totalDist = dist + findMinDistance(spTreeSet, key, pendingKeyCount, collectedKeys);
+
         collectedKeys.delete(key);
 
         if (totalDist < minDistance) {
             minDistance = totalDist;
         }
-
 
     });
 
