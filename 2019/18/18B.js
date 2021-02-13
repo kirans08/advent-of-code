@@ -1,7 +1,8 @@
 const fs = require('fs');
 let input = fs.readFileSync('input', 'utf8');
 
-const GraphBuilder = require('./GraphBuilder');
+const GraphBuilder = require('../shared/GraphBuilder');
+const SortedList = require('../shared/SortedList');
 
 // Part 2 Input transformation
 input = input.replace(`
@@ -18,45 +19,36 @@ const ENTRY_POINTS = ['@', '^', '&', '*'];
 
 const getCacheKey = (currentNodes, collectedKeys) => {
 
-    return [...currentNodes].toString() + '-' + [...collectedKeys].sort().toString();
+    return currentNodes + '-' + collectedKeys;
 
 }
 
-const possibleKeys = (graph, currentNodes, collectedKeys = new Set()) => {
+const isDoor = node => /^[A-Z]$/.test(node);
 
-    let pending = currentNodes.map((node, index) => [node, 0, index]);
-    let visited = new Map();
+const possibleKeys = (spTreeSet, currentNodes, collectedKeys) => {
+
     let result = [];
 
-    while (pending.length > 0) {
+    currentNodes.forEach((currentNode, robot) => {
 
-        const [node, dist, robot] = pending.shift();
-        const adjacents = graph[node];
+        const spTree = spTreeSet[currentNode];
+        Object.keys(spTree)
+        .forEach(node => {
 
-        Object.keys(adjacents).forEach(node => {
-
-            const isDoor = /^[A-Z]$/.test(node);
-            if (isDoor && !collectedKeys.has(node.toLowerCase())) {
+            if (node == currentNode || isDoor(node) || collectedKeys.has(node) || ENTRY_POINTS.includes(node)) {
                 return;
             }
 
-            if (visited.has(node)) {
-                return;
+            const {distance:distance, keys:requiredKeys} = spTree[node];
+
+            if (!requiredKeys.find(key => !collectedKeys.has(key))) {
+
+                result.push([node, distance, robot]);
             }
-
-            const pathDistance = dist + adjacents[node];
-            visited.set(node, true);
-            pending.push([node, pathDistance, robot]);
-
-            if (isDoor || collectedKeys.has(node) || ENTRY_POINTS.includes(node)) {
-                return;
-            }
-
-            result.push([node, pathDistance, robot]);
 
         })
 
-    }
+    })
 
     return result;
 
@@ -64,9 +56,10 @@ const possibleKeys = (graph, currentNodes, collectedKeys = new Set()) => {
 
 const shortestPathCache = new Map();
 
-const findMinDistance = (graph, currentNodes, pendingKeyCount, collectedKeys = new Set()) => {
+const findMinDistance = (spTreeSet, currentNodes, pendingKeyCount, collectedKeys = new SortedList()) => {
 
     const cacheKey = getCacheKey(currentNodes, collectedKeys);
+
     if (shortestPathCache.has(cacheKey)) {
 
         return shortestPathCache.get(cacheKey);
@@ -80,28 +73,109 @@ const findMinDistance = (graph, currentNodes, pendingKeyCount, collectedKeys = n
     let minDistance = Number.POSITIVE_INFINITY;
     pendingKeyCount--;
 
-    possibleKeys(graph, currentNodes, collectedKeys)
+    possibleKeys(spTreeSet, currentNodes, collectedKeys)
     .forEach(node => {
         
         const [key, dist, robot] = node;
 
-        const currentNodesNextState = [...currentNodes];
-        currentNodesNextState[robot] = key;
-
+        const prevState = currentNodes[robot];
+        currentNodes[robot] = key;
         collectedKeys.add(key);
-        const totalDist = dist + findMinDistance(graph, currentNodesNextState, pendingKeyCount, collectedKeys);
+
+        const totalDist = dist + findMinDistance(spTreeSet, currentNodes, pendingKeyCount, collectedKeys);
+
         collectedKeys.delete(key);
+        currentNodes[robot] = prevState;
+
 
         if (totalDist < minDistance) {
             minDistance = totalDist;
         }
-
 
     });
 
     shortestPathCache.set(cacheKey, minDistance);
 
     return minDistance;
+
+}
+
+const findNextUnvisitedNode = (shortestPathTree, visitedVertexes) => {
+
+    let minDist = Number.POSITIVE_INFINITY;
+    let result;
+
+    Object.keys(shortestPathTree).forEach(node => {
+
+        if (!visitedVertexes.has(node) && shortestPathTree[node].distance < minDist) {
+            result = node;
+            minDist = shortestPathTree[node].distance;
+        }
+
+    })
+
+    return result;
+
+}
+
+const dijikstras = (graph, start) => {
+
+    const visitedVertexes = new Map();
+    const shortestPathTree = {};
+    let count = Object.keys(graph).length;
+
+    Object.keys(graph).forEach(node => {
+        shortestPathTree[node] = {
+            distance: Number.POSITIVE_INFINITY,
+            keys: []
+        };
+    });
+
+    shortestPathTree[start].distance = 0;
+
+    while(count-- > 0) {
+
+        const currentNode = findNextUnvisitedNode(shortestPathTree, visitedVertexes);
+
+        if (!currentNode) {
+            break;
+        }
+
+        visitedVertexes.set(currentNode, true);
+
+        const adjacentNodes = graph[currentNode];
+        const baseDistance  = shortestPathTree[currentNode].distance;
+        const baseKeys = shortestPathTree[currentNode].keys;
+
+        Object.keys(adjacentNodes).forEach(node => {
+
+            const distance = adjacentNodes[node] + baseDistance;
+
+            if (distance < shortestPathTree[node].distance) {
+                shortestPathTree[node] = {
+                    distance: distance,
+                    keys: isDoor(currentNode) ? baseKeys.concat(currentNode.toLowerCase()) : baseKeys
+                }
+
+            }
+
+        })
+
+    };
+
+    const result = {};
+    
+    // Filter unreachable keys
+    Object.entries(shortestPathTree)
+    .forEach(([key, node]) => {
+
+        if (node.distance < Number.POSITIVE_INFINITY) {
+            result[key] = node;
+        }
+
+    });
+
+    return result;
 
 }
 
@@ -128,6 +202,8 @@ const keyCount = Object.keys(graph)
 .filter(node => /^[a-z]$/.test(node))
 .length;
 
-// Needs Optimisation to reduce running time
-console.log(findMinDistance(graph, [...ENTRY_POINTS], keyCount));
+const spTreeSet = {};
+Object.keys(graph)
+.forEach(key => spTreeSet[key] = dijikstras(graph, key));
 
+console.log(findMinDistance(spTreeSet, [...ENTRY_POINTS], keyCount));
