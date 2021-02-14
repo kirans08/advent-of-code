@@ -16,7 +16,11 @@ class GraphBuilder {
 
             const [key, x, y] = node;
 
-            graph[key] = this._findAdjacentNodes(x, y);
+            if (!graph[key]) {
+                graph[key] = {};
+            }
+
+            graph[key] = Object.assign(graph[key], this._findAdjacentNodes(x, y));
             this._reloadGridFromBackup();
 
         });
@@ -33,7 +37,7 @@ class GraphBuilder {
 
             row.forEach((v, colInd) => {
 
-                if (['.', '#'].includes(v)) {
+                if (['.', '#', ' '].includes(v)) {
                     return false;
                 }
 
@@ -58,7 +62,7 @@ class GraphBuilder {
             let [x, y, depth] = pending.shift();
             const cell = this.grid[x] && this.grid[x][y];
 
-            if (!cell || cell === '#' || cell === '$') {
+            if (!cell || ['#', ' ', '$'].includes(cell)) {
                 continue;
             }
 
