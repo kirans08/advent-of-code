@@ -1,6 +1,6 @@
 const fs = require('fs');
 const input = fs.readFileSync('input', 'utf8');
-const IntcodeComputer = require('../shared/IntcodeComputerV3');
+const IntcodeComputer = require('../shared/IntcodeComputer');
 
 const findStartCoods = scaffold => {
 
@@ -203,10 +203,16 @@ robot = new IntcodeComputer(program, programInput);
 
 let result;
 temp = [];
-do {
+
+while(true) {
 
     output = robot.output();
-    output && (result = output)
+
+    if (robot.halted()) {
+        break;
+    }
+
+    result = output;
 
     if (output == 10) {
         console.log(temp.join(''))
@@ -216,7 +222,7 @@ do {
 
     temp.push(String.fromCharCode(output));
 
-}while(output);
+}
 
 console.log(result);
 

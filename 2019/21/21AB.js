@@ -1,6 +1,6 @@
 const fs = require('fs');
 const input = fs.readFileSync('input', 'utf8');
-const IntcodeComputer = require('../shared/IntcodeComputerV3');
+const IntcodeComputer = require('../shared/IntcodeComputer');
 
 const program = input.split(',').map(Number);
 const droidInterface = new IntcodeComputer(program);
@@ -14,10 +14,15 @@ const runSpringScript = script => {
 
     let result;
     temp = [];
-    do {
+    while(true) {
 
         output = droidInterface.output();
-        output && (result = output)
+
+        if (droidInterface.halted()) {
+            break;
+        }
+
+        result = output;
 
         if (output == 10) {
             console.log(temp.join(''));
@@ -27,7 +32,7 @@ const runSpringScript = script => {
 
         temp.push(String.fromCharCode(output));
 
-    }while(output);
+    }
 
     console.log(result);
 

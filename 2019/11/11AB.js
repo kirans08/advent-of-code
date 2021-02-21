@@ -1,6 +1,6 @@
 const fs = require('fs');
 const input = fs.readFileSync('input', 'utf8');
-const IntcodeComputer = require('../shared/IntcodeComputerV3');
+const IntcodeComputer = require('../shared/IntcodeComputer');
 
 class Ship {
 

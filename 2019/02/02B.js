@@ -1,6 +1,6 @@
 const fs = require('fs');
 const input = fs.readFileSync('input', 'utf8');
-const IntcodeComputer = require('../shared/IntcodeComputerV1');
+const IntcodeComputer = require('../shared/IntcodeComputer');
 
 const program = input.split(',').map(Number);
 const OUTPUT = 19690720;
