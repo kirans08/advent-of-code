@@ -1,6 +1,6 @@
 const fs = require('fs');
 const input = fs.readFileSync('input', 'utf8');
-const IntcodeComputer = require('../shared/IntcodeComputer');
+const AsciiComputer = require('../shared/AsciiComputer');
 
 const findStartCoods = scaffold => {
 
@@ -169,60 +169,33 @@ const generatePathFunctions = path => {
 }
 
 const program = input.split(',').map(Number);
-let robot = new IntcodeComputer(program);
+let robot = new AsciiComputer(program);
 
 let output;
 let scaffold = [];
 let temp = [];
 
-do {
+while(!robot.halted()) {
 
-    output = robot.output();
+    scaffold.push(robot.output().split(''));
 
-    if (output == 10) {
-        scaffold.push(temp);
-        temp = [];
-        continue;
-    }
-
-    temp.push(String.fromCharCode(output));
-
-}while(output);
-
+}
 
 const path = getScaffoldPath(scaffold);
 const pathFunctions = generatePathFunctions(path);
 const requireVideoFeed = `n`
 
 const programInput = `${pathFunctions}
-${requireVideoFeed}
-`.split('').map(c => c.charCodeAt(0));
+${requireVideoFeed}`;
 
 program[0] = 2;
-robot = new IntcodeComputer(program, programInput);
+robot = new AsciiComputer(program, programInput);
 
 let result;
 temp = [];
 
-while(true) {
+while(!robot.halted()) {
 
-    output = robot.output();
-
-    if (robot.halted()) {
-        break;
-    }
-
-    result = output;
-
-    if (output == 10) {
-        console.log(temp.join(''))
-        temp = [];
-        continue;
-    }
-
-    temp.push(String.fromCharCode(output));
+    console.log(robot.output());
 
 }
-
-console.log(result);
-

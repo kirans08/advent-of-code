@@ -1,40 +1,19 @@
 const fs = require('fs');
 const input = fs.readFileSync('input', 'utf8');
-const IntcodeComputer = require('../shared/IntcodeComputer');
+const AsciiComputer = require('../shared/AsciiComputer');
 
 const program = input.split(',').map(Number);
-const droidInterface = new IntcodeComputer(program);
+const droidInterface = new AsciiComputer(program);
 
 const runSpringScript = script => {
 
-    script = script.split('')
-    .map(c => c.charCodeAt(0));
-
     droidInterface.reset(false, script);
 
-    let result;
-    temp = [];
-    while(true) {
+    while(!droidInterface.halted()) {
 
-        output = droidInterface.output();
-
-        if (droidInterface.halted()) {
-            break;
-        }
-
-        result = output;
-
-        if (output == 10) {
-            console.log(temp.join(''));
-            temp = [];
-            continue;
-        }
-
-        temp.push(String.fromCharCode(output));
+        console.log(droidInterface.output());
 
     }
-
-    console.log(result);
 
 }
 

@@ -1,4 +1,3 @@
-
 /**
  * IntCode Computer
  *
@@ -25,7 +24,7 @@ class IntcodeComputer {
 
     constructor(program, input = [], defaultInput = null) {
 
-        this._init(program, input);
+        this.init(program, input);
         this.defaultInput = defaultInput;
 
     }
@@ -33,13 +32,13 @@ class IntcodeComputer {
     reset(program = false, input = []) {
 
         this.instance.return();
-        this._init(program || this.program, input);
+        this.init(program || this.program, input);
 
         return this;
 
     }
 
-    _init(program, input) {
+    init(program, input) {
 
         this.program = [...program];
         this.inputList = input;
@@ -77,7 +76,6 @@ class IntcodeComputer {
         } while(result === this.constructor.INPUT_EVENT);
 
         return result;
-
 
     }
 

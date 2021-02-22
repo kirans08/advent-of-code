@@ -1,6 +1,6 @@
 const fs = require('fs');
 const input = fs.readFileSync('input', 'utf8');
-const IntcodeComputer = require('../shared/IntcodeComputer');
+const AsciiComputer = require('../shared/AsciiComputer');
 
 const findIntersections = scaffold => {
 
@@ -39,25 +39,15 @@ const getAllignmentParams = scaffold => {
 }
 
 const program = input.split(',').map(Number);
-const robot = new IntcodeComputer(program);
+const robot = new AsciiComputer(program);
 
-let output;
 let scaffold = [];
-let temp = [];
 
-do {
+while(!robot.halted()) {
 
-    output = robot.output();
+    scaffold.push(robot.output().split(''));
 
-    if (output == 10) {
-        scaffold.push(temp);
-        temp = [];
-        continue;
-    }
-
-    temp.push(String.fromCharCode(output));
-
-}while(output);
+}
 
 console.log(getAllignmentParams(scaffold));
 
