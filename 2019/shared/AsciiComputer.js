@@ -41,6 +41,10 @@ class AsciiComputer extends IntcodeComputer {
 
     _inputToCharCode(input) {
 
+        if (input.length === 0) {
+            return [];
+        }
+
         return (input + '\n')
         .split('')
         .map(c => c.charCodeAt(0));
